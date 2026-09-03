@@ -3,29 +3,71 @@
 @section('title', 'Dashboard · ProjectRack')
 
 @section('content')
-<h1>Your projects</h1>
-<p class="lede">Projects synced from the field app and shares accepted via owner links.</p>
+@php use App\Support\Labels; @endphp
 
+<p class="section-label">Overview</p>
+<h1 class="greeting">{{ $greeting }}, {{ auth()->user()->name }}</h1>
+<p class="lede">{{ $activeCount }} active projects · {{ $openTasks }} open tasks — synced from the field app.</p>
+
+<div class="grid grid-4" style="margin-bottom:1.25rem">
+    <div class="panel stat">
+        <strong>{{ $projects->count() }}</strong>
+        <span>Projects</span>
+    </div>
+    <div class="panel stat">
+        <strong class="money">{{ Labels::money($totalSpent) }}</strong>
+        <span>Total spent</span>
+    </div>
+    <div class="panel stat">
+        <strong class="money">{{ Labels::money($totalBudget) }}</strong>
+        <span>Total budget</span>
+    </div>
+    <div class="panel stat">
+        <strong class="money">{{ Labels::money($remainingBudget) }}</strong>
+        <span>Remaining</span>
+    </div>
+</div>
+
+@if ($trend->isNotEmpty())
+<div class="panel" style="margin-bottom:1.25rem">
+    <p class="section-label">30-day spend trend</p>
+    <div class="spark" aria-hidden="true">
+        @foreach ($trend as $point)
+            @php $h = max(8, round(($point['total'] / $maxTrend) * 56)); @endphp
+            <i style="height: {{ $h }}px" title="{{ $point['day'] }}: {{ Labels::money($point['total']) }}"></i>
+        @endforeach
+    </div>
+</div>
+@endif
+
+<p class="section-label">Your projects</p>
 @if ($projects->isEmpty())
-    <div class="panel">
-        <p>No projects yet. Ask a supervisor to share a project link from the mobile app, or create projects in the app and sync when online.</p>
+    <div class="panel empty">
+        <p>No projects yet. Ask a supervisor to share a link from the mobile app (<strong>Share with owner</strong>), then accept it here.</p>
     </div>
 @else
     <div class="grid grid-2">
         @foreach ($projects as $project)
-            <a class="panel project-card" href="{{ route('projects.show', $project) }}" style="color:inherit;text-decoration:none">
+            @php
+                $used = Labels::budgetUsedPercent((float) $project->budget, (float) $project->spent);
+                $tone = Labels::statusTone('project', $project->status);
+                $barClass = $used >= 100 ? 'danger' : ($used >= 80 ? 'warn' : '');
+            @endphp
+            <a class="panel project-card" href="{{ route('projects.show', $project) }}">
                 <div class="meta">
-                    <span class="badge">{{ $project->status }}</span>
+                    <span class="badge {{ $tone }}">{{ Labels::projectStatus($project->status) }}</span>
                     <span>{{ $project->category }}</span>
-                    <span>{{ $project->pivot->role }}</span>
+                    <span class="badge muted">{{ $project->pivot->role }}</span>
                 </div>
                 <h2>{{ $project->name }}</h2>
                 <p>{{ \Illuminate\Support\Str::limit($project->description ?: 'No description', 110) }}</p>
-                <div class="bar" title="Progress"><span style="width: {{ min(100, round(($project->progress ?? 0) * 100)) }}%"></span></div>
+                <div class="bar {{ $barClass }}" title="Budget used {{ round($used) }}%">
+                    <span style="width: {{ round($used) }}%"></span>
+                </div>
                 <div class="meta" style="margin-top:0.75rem">
-                    <span>Budget {{ number_format($project->budget, 0) }}</span>
-                    <span>Spent {{ number_format($project->spent, 0) }}</span>
+                    <span class="money">{{ Labels::money($project->spent) }} / {{ Labels::money($project->budget) }}</span>
                     <span>{{ $project->expenses_count }} expenses</span>
+                    <span>{{ $project->open_tasks_count }} open tasks</span>
                 </div>
             </a>
         @endforeach

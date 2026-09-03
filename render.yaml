@@ -1,0 +1,60 @@
+# ProjectRack Laravel API + PostgreSQL on Render (free tier where possible).
+# Service URL: https://projectrack-backend.onrender.com
+databases:
+  - name: projectrack-db
+    plan: free
+    postgresMajorVersion: "16"
+    databaseName: projectrack
+    user: projectrack
+
+services:
+  - type: web
+    name: projectrack-backend
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /up
+    envVars:
+      - key: APP_NAME
+        value: ProjectRack
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        value: https://projectrack-backend.onrender.com
+      - key: APP_KEY
+        value: base64:OqqQtK/VUJFS6DmJO+eks1E0larzyYDTmtnAeP+T6h0=
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: info
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_SSLMODE
+        value: prefer
+      - key: DATABASE_URL
+        fromDatabase:
+          name: projectrack-db
+          property: connectionString
+      - key: DB_URL
+        fromDatabase:
+          name: projectrack-db
+          property: connectionString
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: FILESYSTEM_DISK
+        value: local
+      - key: BROADCAST_CONNECTION
+        value: log
+      - key: MAIL_MAILER
+        value: log
+      - key: SANCTUM_STATEFUL_DOMAINS
+        value: projectrack-backend.onrender.com

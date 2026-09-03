@@ -15,7 +15,12 @@ class ShareController extends Controller
 {
     public function store(Request $request, string $project): JsonResponse
     {
-        $model = Project::findOrFail($project);
+        $model = Project::find($project);
+        if (! $model) {
+            return response()->json([
+                'message' => "Project \"$project\" is not on the server yet. Sync the project first, then share again.",
+            ], 404);
+        }
         ProjectAccess::ensureWrite($request->user(), $model);
 
         $data = $request->validate([
@@ -34,7 +39,8 @@ class ShareController extends Controller
             'max_uses' => $data['max_uses'] ?? null,
         ]);
 
-        $url = url('/p/'.$token);
+        // Uses APP_URL (Render HTTPS URL, or a local tunnel during development).
+        $url = rtrim((string) config('app.url'), '/').'/p/'.$token;
 
         return response()->json([
             'data' => $share,
@@ -49,8 +55,23 @@ class ShareController extends Controller
 
         $shares = ProjectShare::where('project_id', $model->id)
             ->whereNull('revoked_at')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
             ->orderByDesc('created_at')
-            ->get();
+            ->get()
+            ->map(function (ProjectShare $share) {
+                return [
+                    'id' => $share->id,
+                    'token' => $share->token,
+                    'role' => $share->role,
+                    'expires_at' => $share->expires_at?->toIso8601String(),
+                    'max_uses' => $share->max_uses,
+                    'use_count' => $share->use_count,
+                    'created_at' => $share->created_at?->toIso8601String(),
+                    'url' => rtrim((string) config('app.url'), '/').'/p/'.$share->token,
+                ];
+            });
 
         return response()->json(['data' => $shares]);
     }
@@ -118,7 +139,7 @@ class ShareController extends Controller
         $share->increment('use_count');
 
         // Prefer owner_id on project when accepting as owner
-        if ($share->role === ProjectAccess::ROLE_OWNER && ! $share->project->owner_id) {
+        if ($share->role === ProjectAccess::ROLE_OWNER) {
             $share->project->update(['owner_id' => $user->id]);
         }
 

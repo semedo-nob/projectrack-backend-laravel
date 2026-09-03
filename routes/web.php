@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\ProjectExportController;
 use App\Http\Controllers\Web\ProjectPageController;
 use App\Http\Controllers\Web\SharePageController;
 use Illuminate\Support\Facades\Route;
@@ -35,4 +36,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{project}/activities', [ProjectPageController::class, 'activities'])->name('projects.activities');
     Route::get('/projects/{project}/schedule', [ProjectPageController::class, 'schedule'])->name('projects.schedule');
     Route::get('/projects/{project}/reports', [ProjectPageController::class, 'reports'])->name('projects.reports');
+    Route::get('/projects/{project}/export/pdf', [ProjectExportController::class, 'pdf'])->name('projects.export.pdf');
+    Route::get('/projects/{project}/export/csv/{kind?}', [ProjectExportController::class, 'csv'])
+        ->whereIn('kind', ['all', 'expenses', 'tasks', 'inventory', 'activities', 'schedule'])
+        ->name('projects.export.csv');
 });

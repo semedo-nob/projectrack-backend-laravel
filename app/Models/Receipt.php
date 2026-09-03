@@ -11,7 +11,7 @@ class Receipt extends Model
 
     protected $keyType = 'string';
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'id',
@@ -21,6 +21,7 @@ class Receipt extends Model
         'confidence',
         'processed_at',
         'created_at',
+        'updated_at',
     ];
 
     protected function casts(): array
@@ -29,6 +30,7 @@ class Receipt extends Model
             'confidence' => 'float',
             'processed_at' => 'datetime',
             'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 

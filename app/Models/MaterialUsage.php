@@ -11,7 +11,7 @@ class MaterialUsage extends Model
 
     protected $keyType = 'string';
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'id',
@@ -26,6 +26,7 @@ class MaterialUsage extends Model
         'expense_id',
         'occurred_at',
         'created_at',
+        'updated_at',
     ];
 
     protected function casts(): array
@@ -35,6 +36,7 @@ class MaterialUsage extends Model
             'quantity_original' => 'float',
             'occurred_at' => 'datetime',
             'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 

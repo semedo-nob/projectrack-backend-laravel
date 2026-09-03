@@ -48,6 +48,20 @@ php artisan serve
 Web UI: http://localhost:8000  
 API base: http://localhost:8000/api/v1
 
+## Public share links (Render)
+
+Production host: **https://projectrack-backend.onrender.com**
+
+Do **not** deploy with Cloudflare Workers / `wrangler` — that cannot run Laravel or Postgres.
+
+```bash
+# Render Blueprint (render.yaml) creates the web service + PostgreSQL.
+# See docs/RENDER.md
+```
+
+Local-only fallback: `php artisan serve` at http://localhost:8000  
+Optional Quick Tunnel for laptop demos: `./scripts/dev-tunnel.sh` (see [docs/CLOUDFLARE_TUNNEL.md](docs/CLOUDFLARE_TUNNEL.md)).
+
 ## Auth (API)
 
 | Method | Path | Notes |

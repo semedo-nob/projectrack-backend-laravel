@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "deploy": "node -e \"console.error('Do not deploy this Laravel app with wrangler/Workers.\\nUse: ./scripts/dev-tunnel.sh  (see docs/CLOUDFLARE_TUNNEL.md)'); process.exit(1)\""
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",

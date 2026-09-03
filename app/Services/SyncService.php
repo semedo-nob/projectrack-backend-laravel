@@ -119,7 +119,8 @@ class SyncService
 
         $attrs = $this->projectAttrs($payload);
         $attrs['id'] = $id;
-        $attrs['owner_id'] = $attrs['owner_id'] ?? $user->id;
+        // Always bind to the authenticated server user — mobile local IDs may differ.
+        $attrs['owner_id'] = $user->id;
         $attrs['created_at'] = isset($payload['created_at']) ? Carbon::parse($payload['created_at']) : now();
         $attrs['updated_at'] = $clientUpdatedAt;
 
@@ -280,13 +281,20 @@ class SyncService
             'expenses' => $this->changed(Expense::class, $projectIds, 'project_id', $since),
             'tasks' => $this->changed(Task::class, $projectIds, 'project_id', $since),
             'inventory_items' => $this->changed(InventoryItem::class, $projectIds, 'project_id', $since),
-            'material_usages' => $this->changedCreatedOnly(MaterialUsage::class, $projectIds, $since),
+            'material_usages' => $this->changed(MaterialUsage::class, $projectIds, 'project_id', $since),
             'activity_logs' => $this->changed(ActivityLog::class, $projectIds, 'project_id', $since),
             'milestones' => $this->changed(ProjectMilestone::class, $projectIds, 'project_id', $since),
             'project_tags' => ProjectTag::whereIn('project_id', $projectIds)->get(),
             'receipts' => Receipt::query()
                 ->whereIn('expense_id', Expense::whereIn('project_id', $projectIds)->select('id'))
-                ->when($since, fn ($q) => $q->where('created_at', '>', $since))
+                ->when($since, function ($q) use ($since) {
+                    $q->where(function ($inner) use ($since) {
+                        $inner->where('updated_at', '>', $since)
+                            ->orWhere(function ($q2) use ($since) {
+                                $q2->whereNull('updated_at')->where('created_at', '>', $since);
+                            });
+                    });
+                })
                 ->get(),
             'media' => $this->changed(Media::class, $projectIds, 'project_id', $since),
         ];
@@ -345,8 +353,8 @@ class SyncService
      */
     protected function projectAttrs(array $payload): array
     {
+        // Never trust mobile owner_id — local user ids often differ from server users.
         return array_filter([
-            'owner_id' => $payload['owner_id'] ?? $payload['ownerId'] ?? null,
             'name' => $payload['name'] ?? null,
             'description' => $payload['description'] ?? '',
             'start_date' => isset($payload['start_date']) || isset($payload['startDate'])

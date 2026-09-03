@@ -4,8 +4,9 @@
 
 @section('content')
 <div class="auth-wrap panel">
+    <p class="section-label">Owner portal</p>
     <h1>Create account</h1>
-    <p class="lede">Owners use the web to follow field progress. Supervisors sync from the mobile app.</p>
+    <p class="lede">Owners follow field progress on the web. Supervisors sync from the mobile app and send share links.</p>
     @if ($errors->any())
         <ul class="errors">
             @foreach ($errors->all() as $error)
@@ -15,6 +16,9 @@
     @endif
     <form method="POST" action="{{ route('register') }}">
         @csrf
+        @if (request('redirect'))
+            <input type="hidden" name="redirect" value="{{ request('redirect') }}">
+        @endif
         <label for="name">Name</label>
         <input id="name" name="name" value="{{ old('name') }}" required>
         <label for="email">Email</label>
@@ -32,6 +36,6 @@
             <button class="btn" type="submit">Create account</button>
         </div>
     </form>
-    <p class="muted" style="margin-top:1rem">Already registered? <a href="{{ route('login') }}">Log in</a></p>
+    <p class="muted" style="margin-top:1rem">Already registered? <a href="{{ route('login', request()->only('redirect')) }}">Log in</a></p>
 </div>
 @endsection
