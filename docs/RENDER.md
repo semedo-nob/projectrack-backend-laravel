@@ -6,9 +6,9 @@ This Laravel app cannot run on Cloudflare Workers. Render runs PHP + PostgreSQL 
 
 ## First-time setup
 
-1. Push this repo to GitHub.
-2. In [Render](https://dashboard.render.com), **New → Blueprint** and select this repository (`render.yaml`).
-3. Render creates:
+1. Open **[Deploy to Render](https://render.com/deploy?repo=https://github.com/semedo-nob/projectrack-backend-laravel)**
+2. Sign in to Render (GitHub is fine).
+3. Apply the Blueprint — it creates the web service + PostgreSQL.
    - Web service `projectrack-backend` (free)
    - PostgreSQL `projectrack-db` (free, 90-day expiry on the free plan)
 4. Wait for the first deploy. Health check: `https://projectrack-backend.onrender.com/up`

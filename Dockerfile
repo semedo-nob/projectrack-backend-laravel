@@ -1,6 +1,6 @@
 # ProjectRack Laravel API + owner portal for Render.
-# PHP 8.3 CLI is enough for a school demo (artisan serve).
-FROM php:8.3-cli-bookworm
+# PHP 8.4 matches composer.lock (Symfony 8.1).
+FROM php:8.4-cli-bookworm
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
