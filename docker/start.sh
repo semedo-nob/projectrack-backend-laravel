@@ -42,6 +42,8 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-PORT="${PORT:-10000}"
-echo "==> Serving ProjectRack on 0.0.0.0:${PORT} (APP_URL=${APP_URL:-unset})"
-exec php artisan serve --host=0.0.0.0 --port="$PORT"
+# Nginx on the same host is the only public listener. Do not bind 0.0.0.0.
+BIND="${APP_BIND:-127.0.0.1}"
+PORT="${PORT:-8000}"
+echo "==> Serving ProjectRack on ${BIND}:${PORT} (APP_URL=${APP_URL:-unset})"
+exec php artisan serve --host="$BIND" --port="$PORT" --no-reload

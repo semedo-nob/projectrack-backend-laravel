@@ -39,7 +39,7 @@ class ShareController extends Controller
             'max_uses' => $data['max_uses'] ?? null,
         ]);
 
-        // Uses APP_URL (Render HTTPS URL, or a local tunnel during development).
+        // Uses APP_URL, which must be the public Nginx HTTPS origin.
         $url = rtrim((string) config('app.url'), '/').'/p/'.$token;
 
         return response()->json([

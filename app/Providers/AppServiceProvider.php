@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Share links and redirects must use the public HTTPS host (Render), not 127.0.0.1.
+        // Share links and redirects use APP_URL (the public Nginx HTTPS origin).
         $appUrl = config('app.url');
         if (is_string($appUrl) && $appUrl !== '') {
             URL::forceRootUrl(rtrim($appUrl, '/'));

@@ -1,4 +1,5 @@
-# ProjectRack Laravel API + owner portal for Render.
+# ProjectRack Laravel API + owner portal.
+# The process listens on 127.0.0.1:8000. Publish 80/443 on Nginx, not this port.
 # PHP 8.4 matches composer.lock (Symfony 8.1).
 FROM php:8.4-cli-bookworm
 
@@ -42,8 +43,9 @@ RUN composer dump-autoload --optimize --no-dev --no-scripts \
 ENV APP_ENV=production \
     APP_DEBUG=false \
     LOG_CHANNEL=stderr \
-    PORT=10000
+    APP_BIND=127.0.0.1 \
+    PORT=8000
 
-EXPOSE 10000
+EXPOSE 8000
 
 CMD ["docker/start.sh"]

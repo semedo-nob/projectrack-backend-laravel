@@ -1,5 +1,6 @@
-# ProjectRack Laravel API + PostgreSQL on Render (free tier where possible).
-# Service URL: https://projectrack-backend.onrender.com
+# RETIRED. Render is out of credits and is no longer the public entry.
+# Serve this app behind Nginx. See deploy/README.md.
+# Do not put APP_KEY or database passwords in this file.
 databases:
   - name: projectrack-db
     plan: free
@@ -24,8 +25,6 @@ services:
         value: "false"
       - key: APP_URL
         value: https://projectrack-backend.onrender.com
-      - key: APP_KEY
-        value: base64:OqqQtK/VUJFS6DmJO+eks1E0larzyYDTmtnAeP+T6h0=
       - key: LOG_CHANNEL
         value: stderr
       - key: LOG_LEVEL

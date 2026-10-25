@@ -50,7 +50,7 @@ API base: http://localhost:8000/api/v1
 
 ## Public share links (Render)
 
-Production host: **https://projectrack-backend.onrender.com**
+Production origin on this machine: Nginx at `http://127.0.0.1:8080`, Laravel at `127.0.0.1:8000`, Postgres at `127.0.0.1:55434`. The public hostname is a named Cloudflare Tunnel. See `deploy/README.md`. The old Render host is retired.
 
 Do **not** deploy with Cloudflare Workers / `wrangler` — that cannot run Laravel or Postgres.
 

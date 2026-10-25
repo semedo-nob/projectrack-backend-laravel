@@ -15,8 +15,27 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
-        // Render (and local tunnels) terminate TLS and forward the real host.
-        $middleware->trustProxies(at: '*');
+        // Forwarded headers are accepted only from the local Nginx proxy.
+        // A wildcard used to trust every caller (required on Render). That is
+        // unsafe once the PHP process is bound to localhost: a direct request
+        // could spoof X-Forwarded-Proto. Wildcard values are ignored.
+        // Console boot invokes this callback before the config repository
+        // exists. Fall back to the local Nginx address in that case.
+        $raw = '127.0.0.1';
+        if (app()->bound('config')) {
+            $raw = (string) config('projectrack.trusted_proxies', '127.0.0.1');
+        }
+        if (trim($raw) === '' || trim($raw) === '*') {
+            $raw = '127.0.0.1';
+        }
+        $proxies = array_values(array_filter(array_map('trim', explode(',', $raw))));
+        $middleware->trustProxies(
+            at: $proxies,
+            headers: Request::HEADER_X_FORWARDED_FOR
+                | Request::HEADER_X_FORWARDED_HOST
+                | Request::HEADER_X_FORWARDED_PORT
+                | Request::HEADER_X_FORWARDED_PROTO,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

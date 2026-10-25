@@ -1,6 +1,8 @@
-# Cloudflare Tunnel (local laptop only)
+# Cloudflare Tunnel
 
-**Presentations should use Render**, not this tunnel: see [RENDER.md](RENDER.md).
+Render is retired. A named tunnel to Nginx on `127.0.0.1:8080` is the production path. See the Flutter repo `docs/NGINX_HOSTING.md`. Quick tunnels (`*.trycloudflare.com`) change every start and are not the production hostname.
+
+**Presentations used to use Render.** That host is no longer the production dependency.
 
 Use **cloudflared** only to expose a laptop Laravel process. Do not use `npx wrangler setup` / Cloudflare Workers.
 
