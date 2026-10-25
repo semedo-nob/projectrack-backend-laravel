@@ -37,7 +37,7 @@ sudo systemctl reload php8.4-fpm
 
 PostgreSQL listens on `127.0.0.1:5432` only. Open firewall ports 22, 80, and 443. Do not publish 5432 or the PHP-FPM socket.
 
-Routes stay the same: `/api/v1`, `/up`, `/p/{token}`, and the owner portal. Share links are `https://YOUR_DNS_NAME/p/{token}`. Point the Flutter build at that origin with `--dart-define=PROJECTRACK_API_URL=https://YOUR_DNS_NAME`.
+Routes stay the same: `/api/v1`, `/up`, `/p/{token}`, and the owner portal. On this VPS the public origin is `http://185.206.147.145:8088`, so share links are `http://185.206.147.145:8088/p/{token}`. Set `APP_URL` to that origin and `SESSION_SECURE_COOKIE=false` until HTTPS exists. The Flutter app uses the same origin.
 
 Logs: `/var/log/apache2/projectrack.error.log`. Access lines for `/p/` and `/api/v1/shares/` are omitted so share tokens are not stored. `APP_DEBUG` stays false, so a PHP failure does not return a stack trace.
 

@@ -39,8 +39,7 @@ class ShareController extends Controller
             'max_uses' => $data['max_uses'] ?? null,
         ]);
 
-        // Uses APP_URL, which must be the public Nginx HTTPS origin.
-        $url = rtrim((string) config('app.url'), '/').'/p/'.$token;
+        $url = $this->shareUrl($request, $token);
 
         return response()->json([
             'data' => $share,
@@ -60,7 +59,7 @@ class ShareController extends Controller
             })
             ->orderByDesc('created_at')
             ->get()
-            ->map(function (ProjectShare $share) {
+            ->map(function (ProjectShare $share) use ($request) {
                 return [
                     'id' => $share->id,
                     'token' => $share->token,
@@ -69,7 +68,7 @@ class ShareController extends Controller
                     'max_uses' => $share->max_uses,
                     'use_count' => $share->use_count,
                     'created_at' => $share->created_at?->toIso8601String(),
-                    'url' => rtrim((string) config('app.url'), '/').'/p/'.$share->token,
+                    'url' => $this->shareUrl($request, $share->token),
                 ];
             });
 
@@ -148,5 +147,14 @@ class ShareController extends Controller
             'project_id' => $share->project_id,
             'role' => $share->role,
         ]);
+    }
+
+    /**
+     * Share pages must use the host the browser and the phone already use.
+     * APP_URL may still be a placeholder or an https name this VPS does not have.
+     */
+    private function shareUrl(Request $request, string $token): string
+    {
+        return rtrim($request->getSchemeAndHttpHost(), '/').'/p/'.$token;
     }
 }

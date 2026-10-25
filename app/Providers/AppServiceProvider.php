@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,13 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Share links and redirects use APP_URL (the public Nginx HTTPS origin).
-        $appUrl = config('app.url');
-        if (is_string($appUrl) && $appUrl !== '') {
-            URL::forceRootUrl(rtrim($appUrl, '/'));
-            if (str_starts_with($appUrl, 'https://')) {
-                URL::forceScheme('https');
-            }
-        }
+        // Leave URL generation on the request host. Forcing APP_URL (or https)
+        // sent the owner portal and share pages away from the public
+        // http://IP:8088 address Apache is actually serving.
     }
 }
